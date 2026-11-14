@@ -19,6 +19,15 @@ export default defineConfig({
         files: ["src/components/icons/logo.tsx"],
         rules: { "jsx-a11y/prefer-tag-over-role": "off" },
       },
+      {
+        files: ["src/views/home/preview-pane.tsx"],
+        rules: {
+          "jsx-a11y/no-noninteractive-tabindex": [
+            "error",
+            { tags: ["article"], roles: ["tabpanel", "application"] },
+          ],
+        },
+      },
     ],
   }),
 });

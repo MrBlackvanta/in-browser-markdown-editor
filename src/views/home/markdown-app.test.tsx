@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -79,5 +79,77 @@ describe("MarkdownApp header", () => {
     expect(menu).toHaveAttribute("aria-expanded", "true");
     await user.click(menu);
     expect(menu).toHaveAttribute("aria-expanded", "false");
+  });
+});
+
+describe("MarkdownApp panes", () => {
+  function editor() {
+    return screen.getByRole("textbox", { name: "Markdown" });
+  }
+
+  function preview() {
+    return screen.getByRole("article", { name: "Preview" });
+  }
+
+  it("shows the open document's markdown beside its preview", async () => {
+    await renderApp();
+
+    expect(editor()).toHaveDisplayValue(/^# Welcome to Markdown\n/);
+    expect(
+      within(preview()).getByRole("heading", {
+        level: 1,
+        name: "Welcome to Markdown",
+      }),
+    ).toBeVisible();
+  });
+
+  it("renders the preview from what is typed", async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    await user.click(screen.getByRole("button", { name: "Delete document" }));
+    expect(editor()).toHaveValue("");
+
+    await user.type(editor(), "## Fresh start");
+
+    expect(
+      await within(preview()).findByRole("heading", {
+        level: 2,
+        name: "Fresh start",
+      }),
+    ).toBeVisible();
+  });
+
+  it("keeps unsaved edits across a reload", async () => {
+    const user = userEvent.setup();
+    const { unmount } = await renderApp();
+
+    await user.clear(editor());
+    await user.type(editor(), "draft");
+    unmount();
+    await renderApp();
+
+    expect(editor()).toHaveValue("draft");
+  });
+
+  it("lets the preview take keyboard focus so it can scroll", async () => {
+    const user = userEvent.setup();
+    await renderApp();
+
+    await user.click(editor());
+    await user.tab();
+
+    expect(preview()).toHaveFocus();
+  });
+
+  it("toggles preview-only mode", async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    const toggle = screen.getByRole("button", { name: "Preview only" });
+
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
   });
 });
