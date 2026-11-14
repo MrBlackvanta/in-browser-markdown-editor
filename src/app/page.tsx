@@ -1,3 +1,5 @@
+import { MarkdownApp } from "@/views/home";
+
 export default function Home() {
-  return <main className="grow" />;
+  return <MarkdownApp />;
 }

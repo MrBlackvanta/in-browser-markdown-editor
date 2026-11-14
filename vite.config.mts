@@ -13,6 +13,7 @@ export default defineConfig({
     restoreMocks: true,
   },
   ...house({
+    appShell: true,
     overrides: [
       {
         files: ["src/components/icons/logo.tsx"],

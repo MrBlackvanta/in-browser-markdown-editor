@@ -379,7 +379,7 @@ const signatureOutOfFlow = defineRule({
   },
 });
 
-function projectProblems(root: string) {
+function projectProblems(root: string, appShell: boolean) {
   const at = (path: string) => join(root, path);
   const css = read(at(tailwindEntry));
   const layout = read(at("src/app/layout.tsx"));
@@ -392,6 +392,11 @@ function projectProblems(root: string) {
     (path) => /\.tsx?$/.test(path) && !/\.test\.tsx?$/.test(path),
   );
   const html = rootBlocks(css);
+  const reservesScrollbar = html.some(
+    (body) =>
+      /(?:^|[;\s])overflow-y:\s*scroll/.test(body) ||
+      appliedClasses(body).includes("overflow-y-scroll"),
+  );
   const textNames = themeNames(css, "text");
   const colorNames = themeNames(css, "color");
   const customTextNames = [...textNames].filter(
@@ -452,12 +457,12 @@ function projectProblems(root: string) {
       'globals.css: add @source not for the test files ("../**/*.test.tsx" and friends), or an asserted class string compiles into the bundle.',
     ],
     [
-      !html.some(
-        (body) =>
-          /(?:^|[;\s])overflow-y:\s*scroll/.test(body) ||
-          appliedClasses(body).includes("overflow-y-scroll"),
-      ),
+      !appShell && !reservesScrollbar,
       "globals.css: reserve the scrollbar with html { overflow-y: scroll } in @layer base, or the layout shifts sideways whenever page height changes.",
+    ],
+    [
+      appShell && reservesScrollbar,
+      "globals.css: an app shell never scrolls the page, so html { overflow-y: scroll } only paints an empty track; drop it.",
     ],
     [
       html.some((body) => /(?:^|[;\s])font-size\s*:/.test(body)) ||
@@ -534,12 +539,14 @@ function projectProblems(root: string) {
 }
 
 const projectInvariants = defineRule({
+  meta: { schema: [{ enum: ["app-shell"] }] },
   create(context) {
     if (!/[\\/]src[\\/]app[\\/]layout\.tsx$/.test(context.filename)) return {};
     const root = dirname(dirname(dirname(context.filename)));
+    const appShell = context.options.includes("app-shell");
     return {
       Program(node) {
-        for (const message of projectProblems(root))
+        for (const message of projectProblems(root, appShell))
           context.report({ node, message });
       },
     };
@@ -562,7 +569,10 @@ export default definePlugin({
   },
 });
 
-export function house({ overrides = [] }: { overrides?: Overrides } = {}): {
+export function house({
+  appShell = false,
+  overrides = [],
+}: { appShell?: boolean; overrides?: Overrides } = {}): {
   lint: OxlintConfig;
   fmt: OxfmtConfig;
 } {
@@ -662,7 +672,7 @@ export function house({ overrides = [] }: { overrides?: Overrides } = {}): {
         "house/strip-trailing-slash": "error",
         "house/no-robots-on-not-found": "error",
         "house/signature-out-of-flow": "error",
-        "house/project": "error",
+        "house/project": appShell ? ["error", "app-shell"] : "error",
       },
       overrides: [
         {
