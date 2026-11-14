@@ -3,16 +3,116 @@
 @source not "../../lint";
 @source not "../**/*.test.ts";
 @source not "../**/*.test.tsx";
+@source not "../data/seed-workspace.ts";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-bar: #2b2d31;
+  --color-menu: #35393f;
+  --color-sidebar: #1d1f22;
+  --color-divider: #5a6069;
+  --color-bar-muted: #c1c4cb;
+  --color-sidebar-muted: #81868c;
+  --color-icon: #7c8187;
+  --color-accent: #e46643;
+  --color-accent-hover: #f39765;
+  --color-action: #cf4a24;
+
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --text-h1: 2rem;
+  --text-h1--line-height: 2.625rem;
+  --text-h1--font-weight: 700;
+
+  --text-h2: 1.75rem;
+  --text-h2--line-height: 2.3125rem;
+  --text-h2--font-weight: 300;
+
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 2rem;
+  --text-h3--font-weight: 700;
+
+  --text-h4: 1.25rem;
+  --text-h4--line-height: 1.625rem;
+  --text-h4--font-weight: 700;
+
+  --text-h5: 1rem;
+  --text-h5--line-height: 1.3125rem;
+  --text-h5--font-weight: 700;
+
+  --text-h6: 0.875rem;
+  --text-h6--line-height: 1.125rem;
+  --text-h6--font-weight: 700;
+
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.5rem;
+
+  --text-title: 0.9375rem;
+  --text-title--line-height: 1.125rem;
+
+  --text-label: 0.875rem;
+  --text-label--line-height: 1rem;
+  --text-label--font-weight: 500;
+  --text-label--letter-spacing: 0.143em;
+
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 0.9375rem;
+  --text-caption--font-weight: 300;
+}
 
 @theme inline {
   --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-roboto-slab), ui-serif, Georgia, serif;
   --font-mono: var(--font-roboto-mono), ui-monospace, monospace;
+
+  --color-page: var(--page);
+  --color-pane: var(--pane);
+  --color-rule: var(--rule);
+  --color-ink: var(--ink);
+  --color-ink-strong: var(--ink-strong);
+  --color-muted: var(--muted);
+  --color-well: var(--well);
+  --color-dialog: var(--dialog);
+  --color-scrim: var(--scrim);
+  --color-accent-ink: var(--accent-ink);
 }
 
 @layer base {
-  html {
-    @apply overflow-y-scroll;
+  :root {
+    color-scheme: light;
+
+    --page: #ffffff;
+    --pane: #f5f5f5;
+    --rule: #e4e4e4;
+    --ink: #35393f;
+    --ink-strong: #35393f;
+    --muted: #6d7177;
+    --well: #f5f5f5;
+    --dialog: #ffffff;
+    --scrim: rgb(21 22 25 / 0.5);
+    --accent-ink: #cf4a24;
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+
+    --page: #151619;
+    --pane: #1d1f22;
+    --rule: #5a6069;
+    --ink: #c1c4cb;
+    --ink-strong: #ffffff;
+    --muted: #c1c4cb;
+    --well: #2b2d31;
+    --dialog: #1d1f22;
+    --scrim: rgb(124 129 135 / 0.5);
+    --accent-ink: #e46643;
+  }
+
+  body {
+    @apply bg-page text-ink;
   }
 
   button:not(:disabled) {
@@ -20,6 +120,6 @@
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-2;
+    @apply outline-2 outline-offset-2 outline-accent;
   }
 }
