@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@source not "../../*.md";
+@source not "../../lint";
+@source not "../**/*.test.ts";
+@source not "../**/*.test.tsx";
+
+@theme inline {
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-roboto-slab), ui-serif, Georgia, serif;
+  --font-mono: var(--font-roboto-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    @apply overflow-y-scroll;
+  }
+
+  button:not(:disabled) {
+    @apply cursor-pointer;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2;
+  }
+}
