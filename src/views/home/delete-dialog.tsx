@@ -1,4 +1,4 @@
-import { type Ref, useId } from "react";
+import type { Ref } from "react";
 
 type DeleteDialogProps = {
   ref: Ref<HTMLDialogElement>;
@@ -13,9 +13,8 @@ export default function DeleteDialog({
   onCancel,
   onConfirm,
 }: DeleteDialogProps) {
-  const id = useId();
-  const titleId = `${id}-title`;
-  const textId = `${id}-text`;
+  const titleId = "delete-dialog-title";
+  const textId = "delete-dialog-text";
 
   return (
     <dialog

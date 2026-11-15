@@ -15,6 +15,7 @@ export default function DocumentNameField({ name }: { name: string }) {
         <div className="relative max-w-100 after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-white after:opacity-0 focus-within:after:opacity-100 hover:after:opacity-100">
           <input
             id="document-name"
+            type="text"
             value={name}
             onChange={(event) => renameDocument(event.target.value)}
             autoComplete="off"

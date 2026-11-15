@@ -9,7 +9,7 @@ import {
   saveDocument,
   useWorkspace,
 } from "@/lib/workspace-store";
-import { useDeferredValue, useEffect, useId, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import Announcer from "./announcer";
 import AppHeader from "./app-header";
@@ -22,7 +22,6 @@ import useAnnouncement from "./use-announcement";
 export default function MarkdownApp() {
   const workspace = useWorkspace();
   const isHydrated = useHydrated();
-  const sidebarId = useId();
   const deleteDialogRef = useRef<HTMLDialogElement>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPreviewOnly, setIsPreviewOnly] = useState(false);
@@ -63,14 +62,14 @@ export default function MarkdownApp() {
       >
         <AppHeader
           documentName={name}
-          sidebarId={sidebarId}
+          sidebarId="sidebar"
           isSidebarOpen={isSidebarOpen}
           onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
           onDelete={askToDelete}
           onSave={save}
           sidebar={
             <Sidebar
-              id={sidebarId}
+              id="sidebar"
               isOpen={isSidebarOpen}
               documents={workspace.documents}
               activeId={id}
