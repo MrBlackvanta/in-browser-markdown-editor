@@ -5,8 +5,6 @@ import {
   MenuIcon,
   SaveIcon,
 } from "@/components/icons";
-import { saveDocument } from "@/lib/workspace-store";
-import { useState } from "react";
 import DocumentNameField from "./document-name-field";
 
 type AppHeaderProps = {
@@ -15,6 +13,7 @@ type AppHeaderProps = {
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
   onDelete: () => void;
+  onSave: () => void;
   sidebar: React.ReactNode;
 };
 
@@ -24,15 +23,9 @@ export default function AppHeader({
   isSidebarOpen,
   onToggleSidebar,
   onDelete,
+  onSave,
   sidebar,
 }: AppHeaderProps) {
-  const [saveCount, setSaveCount] = useState(0);
-
-  function handleSave() {
-    saveDocument();
-    setSaveCount((count) => count + 1);
-  }
-
   return (
     <header className="flex h-14 shrink-0 items-center bg-bar md:h-18">
       <button
@@ -56,6 +49,7 @@ export default function AppHeader({
       <button
         type="button"
         aria-label="Delete document"
+        aria-haspopup="dialog"
         onClick={onDelete}
         className="mx-3 shrink-0 p-3 text-icon hover:text-accent motion-safe:transition-[color]"
       >
@@ -63,15 +57,12 @@ export default function AppHeader({
       </button>
       <button
         type="button"
-        onClick={handleSave}
+        onClick={onSave}
         className="mr-2 flex size-10 shrink-0 items-center justify-center gap-1.75 rounded-sm bg-action text-title text-white hover:bg-accent-hover motion-safe:transition-[background-color] md:mr-4 md:w-38 md:justify-start md:px-4"
       >
         <SaveIcon />
         <span className="sr-only md:not-sr-only">Save Changes</span>
       </button>
-      <output className="sr-only">
-        {saveCount > 0 && <span key={saveCount}>Document saved</span>}
-      </output>
     </header>
   );
 }

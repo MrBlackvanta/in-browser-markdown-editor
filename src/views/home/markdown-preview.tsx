@@ -4,6 +4,7 @@ import {
   safeLinkHref,
 } from "@/lib/markdown";
 import { lexer, type MarkedToken, type Token, type Tokens } from "marked";
+import { createContext, type ReactNode, use } from "react";
 
 const HEADING_LEVELS = [
   { Tag: "h1", className: "text-h1 text-ink-strong" },
@@ -20,8 +21,39 @@ const CELL_ALIGNMENT = {
   right: "text-right",
 } as const;
 
+const MAX_NESTING = 100;
+
+const NestingDepth = createContext(0);
+
+function tokensOf(markdown: string) {
+  try {
+    return lexer(markdown);
+  } catch {
+    return null;
+  }
+}
+
 export default function MarkdownPreview({ markdown }: { markdown: string }) {
-  return <TokenList tokens={lexer(markdown)} />;
+  const tokens = tokensOf(markdown);
+
+  if (!tokens)
+    return (
+      <p>
+        This document can’t be previewed. Try nesting its quotes and lists less
+        deeply.
+      </p>
+    );
+
+  return <TokenList tokens={tokens} />;
+}
+
+function Nested({ raw, children }: { raw: string; children: ReactNode }) {
+  const depth = use(NestingDepth);
+
+  if (depth >= MAX_NESTING)
+    return <p className="whitespace-pre-wrap">{raw.trimEnd()}</p>;
+
+  return <NestingDepth value={depth + 1}>{children}</NestingDepth>;
 }
 
 function TokenList({ tokens }: { tokens: Token[] }) {
@@ -42,12 +74,18 @@ function MarkdownToken({ token }: { token: MarkedToken }) {
       );
     case "blockquote":
       return (
-        <blockquote className="space-y-5 rounded-sm border-l-4 border-accent bg-well p-6 pl-5 font-bold text-ink-strong">
-          <TokenList tokens={token.tokens} />
-        </blockquote>
+        <Nested raw={token.raw}>
+          <blockquote className="space-y-5 rounded-sm border-l-4 border-accent bg-well p-6 pl-5 font-bold text-ink-strong">
+            <TokenList tokens={token.tokens} />
+          </blockquote>
+        </Nested>
       );
     case "list":
-      return <List list={token} />;
+      return (
+        <Nested raw={token.raw}>
+          <List list={token} />
+        </Nested>
+      );
     case "code":
       return (
         <pre className="rounded-sm bg-well p-6 whitespace-pre-wrap text-ink-strong">

@@ -13,7 +13,7 @@ export default function PreviewPane({ content }: { content: string }) {
         tabIndex={0}
         className="grow overflow-y-auto px-5 py-4 focus-visible:-outline-offset-2 md:px-6 md:py-5.5"
       >
-        <div className="mx-auto max-w-2xl space-y-5 font-serif text-body wrap-anywhere text-muted">
+        <div className="mx-auto max-w-2xl space-y-5 font-serif text-body wrap-anywhere text-muted in-data-restoring:invisible">
           <MarkdownPreview markdown={deferredContent} />
         </div>
       </article>

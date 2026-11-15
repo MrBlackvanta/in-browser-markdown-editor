@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-import { formatIsoDate, toIsoDate } from "./dates";
+import { formatIsoDate, isIsoDate, toIsoDate } from "./dates";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -12,6 +12,29 @@ describe("toIsoDate", () => {
     [new Date(2026, 11, 31, 23, 59, 59), "2026-12-31"],
   ])("formats %s as the local calendar day %s", (date, iso) => {
     expect(toIsoDate(date)).toBe(iso);
+  });
+});
+
+describe("isIsoDate", () => {
+  it.each(["2022-04-01", "2024-02-29", "2026-12-31"])(
+    "accepts the calendar date %s",
+    (value) => {
+      expect(isIsoDate(value)).toBe(true);
+    },
+  );
+
+  it.each([
+    ["a day February lacks", "2022-02-30"],
+    ["a leap day in a common year", "2023-02-29"],
+    ["a 31st in a 30-day month", "2022-04-31"],
+    ["month zero", "2022-00-10"],
+    ["an unpadded month", "2022-4-01"],
+    ["the brief's MM-DD-YYYY", "04-01-2022"],
+    ["a timestamp", "2022-04-01T00:00"],
+    ["a year alone", "2022"],
+    ["a month alone", "2022-04"],
+  ])("rejects %s", (_, value) => {
+    expect(isIsoDate(value)).toBe(false);
   });
 });
 

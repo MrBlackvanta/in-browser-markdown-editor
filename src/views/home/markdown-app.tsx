@@ -1,20 +1,57 @@
 "use client";
 
 import { HidePreviewIcon, ShowPreviewIcon } from "@/components/icons";
-import { activeDocument } from "@/lib/workspace";
-import { deleteDocument, useWorkspace } from "@/lib/workspace-store";
-import { useId, useState } from "react";
+import { openRestoreGate } from "@/lib/restore-gate";
+import useHydrated from "@/lib/use-hydrated";
+import { activeDocument, toFileName } from "@/lib/workspace";
+import {
+  deleteDocument,
+  saveDocument,
+  useWorkspace,
+} from "@/lib/workspace-store";
+import { useEffect, useId, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+import Announcer from "./announcer";
 import AppHeader from "./app-header";
+import DeleteDialog from "./delete-dialog";
 import EditorPane from "./editor-pane";
 import PreviewPane from "./preview-pane";
 import Sidebar from "./sidebar";
+import useAnnouncement from "./use-announcement";
 
 export default function MarkdownApp() {
   const workspace = useWorkspace();
+  const isHydrated = useHydrated();
   const sidebarId = useId();
+  const deleteDialogRef = useRef<HTMLDialogElement>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPreviewOnly, setIsPreviewOnly] = useState(false);
+  const [nameToDelete, setNameToDelete] = useState("");
+  const [announcement, announce] = useAnnouncement();
   const { id, name, content } = activeDocument(workspace);
+
+  useEffect(() => {
+    if (isHydrated) openRestoreGate();
+  }, [isHydrated]);
+
+  function save() {
+    saveDocument();
+    announce("Document saved");
+  }
+
+  function askToDelete() {
+    flushSync(() => setNameToDelete(toFileName(name)));
+    deleteDialogRef.current?.showModal();
+  }
+
+  function confirmDelete() {
+    const dialog = deleteDialogRef.current;
+    if (!dialog?.open) return;
+
+    deleteDocument();
+    dialog.close();
+    announce("Document deleted");
+  }
 
   return (
     <div className="h-dvh overflow-clip">
@@ -27,7 +64,8 @@ export default function MarkdownApp() {
           sidebarId={sidebarId}
           isSidebarOpen={isSidebarOpen}
           onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
-          onDelete={deleteDocument}
+          onDelete={askToDelete}
+          onSave={save}
           sidebar={
             <Sidebar
               id={sidebarId}
@@ -54,6 +92,13 @@ export default function MarkdownApp() {
           <PreviewPane content={content} />
         </main>
       </div>
+      <DeleteDialog
+        ref={deleteDialogRef}
+        documentName={nameToDelete}
+        onCancel={() => deleteDialogRef.current?.close()}
+        onConfirm={confirmDelete}
+      />
+      <Announcer announcement={announcement} />
     </div>
   );
 }

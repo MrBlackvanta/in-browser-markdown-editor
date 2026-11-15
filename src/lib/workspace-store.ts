@@ -4,11 +4,10 @@ import { toIsoDate } from "./dates";
 import {
   blankDocument,
   parseWorkspace,
+  WORKSPACE_STORAGE_KEY,
   workspaceReducer,
   type WorkspaceAction,
 } from "./workspace";
-
-export const WORKSPACE_STORAGE_KEY = "markdown-workspace";
 
 const listeners = new Set<() => void>();
 let cached: Workspace | null = null;

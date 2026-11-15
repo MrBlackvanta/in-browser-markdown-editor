@@ -1,3 +1,5 @@
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
 const calendarDate = new Intl.DateTimeFormat("en-GB", {
   day: "2-digit",
   month: "long",
@@ -11,6 +13,16 @@ export function toIsoDate(date: Date) {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
+function utcMidnight(isoDate: string) {
+  return new Date(`${isoDate}T00:00:00Z`);
+}
+
+export function isIsoDate(value: string) {
+  if (!ISO_DATE.test(value)) return false;
+  const date = utcMidnight(value);
+  return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
+}
+
 export function formatIsoDate(isoDate: string) {
-  return calendarDate.format(new Date(`${isoDate}T00:00:00Z`));
+  return calendarDate.format(utcMidnight(isoDate));
 }

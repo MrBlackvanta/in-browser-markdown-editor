@@ -1,5 +1,10 @@
-import { MarkdownApp } from "@/views/home";
+import { MarkdownApp, RestoreGateScript } from "@/views/home";
 
 export default function Home() {
-  return <MarkdownApp />;
+  return (
+    <>
+      <RestoreGateScript />
+      <MarkdownApp />
+    </>
+  );
 }

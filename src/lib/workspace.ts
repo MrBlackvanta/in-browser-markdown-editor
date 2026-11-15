@@ -1,4 +1,5 @@
 import type { Draft, MarkdownDocument, Workspace } from "@/data";
+import { isIsoDate } from "./dates";
 
 export type WorkspaceAction =
   | { type: "create"; document: MarkdownDocument }
@@ -8,8 +9,9 @@ export type WorkspaceAction =
   | { type: "save" }
   | { type: "delete"; replacement: MarkdownDocument };
 
+export const WORKSPACE_STORAGE_KEY = "markdown-workspace";
+
 const UNTITLED = "untitled-document";
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export function toFileName(name: string) {
   const stem = name.trim().replace(/\.md$/i, "").trimEnd();
@@ -119,8 +121,7 @@ function isDocument(value: unknown): value is MarkdownDocument {
     isRecord(value) &&
     typeof value.id === "string" &&
     typeof value.createdAt === "string" &&
-    ISO_DATE.test(value.createdAt) &&
-    !Number.isNaN(Date.parse(value.createdAt)) &&
+    isIsoDate(value.createdAt) &&
     isDraft(value)
   );
 }

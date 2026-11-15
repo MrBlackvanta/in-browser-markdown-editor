@@ -257,6 +257,10 @@ describe("parseWorkspace", () => {
       { ...workspace, documents: [{ ...notes, createdAt: "2022-13-45" }] },
     ],
     [
+      "a day its month does not have",
+      { ...workspace, documents: [{ ...notes, createdAt: "2022-02-30" }] },
+    ],
+    [
       "duplicate ids",
       { ...workspace, documents: [notes, { ...todo, id: "notes" }] },
     ],

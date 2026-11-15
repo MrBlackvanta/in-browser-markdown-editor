@@ -19,7 +19,7 @@ export default function DocumentNameField({ name }: { name: string }) {
             onChange={(event) => renameDocument(event.target.value)}
             autoComplete="off"
             spellCheck={false}
-            className="block w-full pb-0.5 text-title text-ellipsis text-white caret-accent outline-transparent"
+            className="block w-full pb-0.5 text-title text-ellipsis text-white caret-accent outline-transparent in-data-restoring:invisible"
           />
         </div>
       </div>

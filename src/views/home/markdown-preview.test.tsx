@@ -356,3 +356,35 @@ describe("MarkdownPreview on the welcome document", () => {
     );
   });
 });
+
+describe("MarkdownPreview on deeply nested markdown", () => {
+  function nestedList(levels: number) {
+    return Array.from(
+      { length: levels },
+      (_, level) => `${"  ".repeat(level)}- item`,
+    ).join("\n");
+  }
+
+  it("stops nesting quotes at 100 levels and shows the rest as source", () => {
+    renderMarkdown(`${">".repeat(150)} deep`);
+
+    const quotes = screen.getAllByRole("blockquote");
+    expect(quotes).toHaveLength(100);
+    expect(
+      within(quotes[99]).getByText(`${">".repeat(50)} deep`),
+    ).toBeVisible();
+  });
+
+  it("stops nesting lists at 100 levels", () => {
+    renderMarkdown(nestedList(120));
+
+    expect(screen.getAllByRole("list")).toHaveLength(100);
+  });
+
+  it("explains instead of crashing when the markdown is too deep to parse", () => {
+    renderMarkdown(`${">".repeat(20000)} deep`);
+
+    expect(screen.queryByRole("blockquote")).not.toBeInTheDocument();
+    expect(screen.getByText(/This document can’t be previewed/)).toBeVisible();
+  });
+});
