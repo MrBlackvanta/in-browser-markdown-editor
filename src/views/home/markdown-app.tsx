@@ -9,7 +9,7 @@ import {
   saveDocument,
   useWorkspace,
 } from "@/lib/workspace-store";
-import { useEffect, useId, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useId, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import Announcer from "./announcer";
 import AppHeader from "./app-header";
@@ -29,10 +29,12 @@ export default function MarkdownApp() {
   const [nameToDelete, setNameToDelete] = useState("");
   const [announcement, announce] = useAnnouncement();
   const { id, name, content } = activeDocument(workspace);
+  const previewContent = useDeferredValue(content);
+  const isSessionRendered = isHydrated && previewContent === content;
 
   useEffect(() => {
-    if (isHydrated) openRestoreGate();
-  }, [isHydrated]);
+    if (isSessionRendered) openRestoreGate();
+  }, [isSessionRendered]);
 
   function save() {
     saveDocument();
@@ -89,7 +91,7 @@ export default function MarkdownApp() {
             {isPreviewOnly ? <HidePreviewIcon /> : <ShowPreviewIcon />}
           </button>
           <EditorPane content={content} />
-          <PreviewPane content={content} />
+          <PreviewPane content={previewContent} />
         </main>
       </div>
       <DeleteDialog

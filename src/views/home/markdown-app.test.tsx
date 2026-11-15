@@ -19,7 +19,9 @@ async function renderApp() {
 }
 
 function nameField() {
-  return screen.getByRole("textbox", { name: "Document Name" });
+  return screen.getByRole<HTMLInputElement>("textbox", {
+    name: "Document Name",
+  });
 }
 
 function deleteButton() {
@@ -55,6 +57,20 @@ describe("MarkdownApp header", () => {
     await renderApp();
 
     expect(nameField()).toHaveValue("welcome.md");
+  });
+
+  it("opens the page with its own heading, whatever the document holds", async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    const [pageHeading, documentHeading] = screen.getAllByRole("heading", {
+      level: 1,
+    });
+    expect(pageHeading).toHaveAccessibleName("Markdown");
+    expect(documentHeading).toHaveAccessibleName("Welcome to Markdown");
+
+    await deleteOpenDocument(user);
+
+    expect(screen.getAllByRole("heading", { level: 1 })).toEqual([pageHeading]);
   });
 
   it("saves a rename under a cleaned file name and announces it", async () => {
@@ -477,13 +493,10 @@ describe("MarkdownApp restoring a session", () => {
       restoring: document.documentElement.hasAttribute("data-restoring"),
     };
     const onRecoverableError = vi.fn();
-    const sessionShownWhenLifted: boolean[] = [];
+    const screenWhenLifted: ReturnType<typeof visibleSession>[] = [];
     const html = document.documentElement;
     vi.spyOn(html, "removeAttribute").mockImplementation((name) => {
-      if (name === "data-restoring")
-        sessionShownWhenLifted.push(
-          screen.queryByDisplayValue("ideas") !== null,
-        );
+      if (name === "data-restoring") screenWhenLifted.push(visibleSession());
       Element.prototype.removeAttribute.call(html, name);
     });
 
@@ -491,22 +504,30 @@ describe("MarkdownApp restoring a session", () => {
       root = hydrateRoot(container, <MarkdownApp />, { onRecoverableError });
     });
 
-    return { prerendered, onRecoverableError, sessionShownWhenLifted };
+    return { prerendered, onRecoverableError, screenWhenLifted };
+  }
+
+  function visibleSession() {
+    return {
+      name: nameField().value,
+      editor: screen.getByRole<HTMLTextAreaElement>("textbox", {
+        name: "Markdown",
+      }).value,
+      preview: screen.getByRole("article", { name: "Preview" }).textContent,
+    };
   }
 
   it("hides the prerendered seed until the saved session has rendered", async () => {
     localStorage.setItem("markdown-workspace", JSON.stringify(saved));
 
-    const { prerendered, onRecoverableError, sessionShownWhenLifted } =
+    const { prerendered, onRecoverableError, screenWhenLifted } =
       await prerenderThenHydrate();
 
     expect(prerendered).toEqual({ name: "welcome.md", restoring: true });
-    expect(sessionShownWhenLifted).toEqual([true]);
+    expect(screenWhenLifted).toEqual([
+      { name: "ideas", editor: "# Draft notes", preview: "Draft notes" },
+    ]);
     expect(document.documentElement).not.toHaveAttribute("data-restoring");
-    expect(nameField()).toHaveValue("ideas");
-    expect(screen.getByRole("textbox", { name: "Markdown" })).toHaveValue(
-      "# Draft notes",
-    );
     expect(onRecoverableError).not.toHaveBeenCalled();
   });
 

@@ -43,7 +43,9 @@ export default function AppHeader({
         )}
       </button>
       {sidebar}
-      <Logo className="ml-6 hidden shrink-0 text-white lg:block" />
+      <h1 className="sr-only lg:not-sr-only lg:ml-6 lg:shrink-0">
+        <Logo className="block text-white" />
+      </h1>
       <div className="ml-7.5 hidden h-10 w-px shrink-0 bg-divider lg:block" />
       <DocumentNameField name={documentName} />
       <button
