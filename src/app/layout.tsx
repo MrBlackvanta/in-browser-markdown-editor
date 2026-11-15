@@ -1,4 +1,4 @@
-import { Signature, ThemeScript } from "@/components/layout";
+import { ThemeScript } from "@/components/layout";
 import { SITE_NAME, SITE_URL } from "@/data";
 import type { Metadata, Viewport } from "next";
 import { Roboto, Roboto_Mono, Roboto_Slab } from "next/font/google";
@@ -71,10 +71,9 @@ export default function RootLayout({
       lang="en"
       className={`${roboto.variable} ${robotoSlab.variable} ${robotoMono.variable} antialiased`}
     >
-      <body className="relative">
+      <body>
         <ThemeScript />
         {children}
-        <Signature />
       </body>
     </html>
   );

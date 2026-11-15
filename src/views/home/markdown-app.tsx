@@ -3,28 +3,39 @@
 import { HidePreviewIcon, ShowPreviewIcon } from "@/components/icons";
 import { activeDocument } from "@/lib/workspace";
 import { deleteDocument, useWorkspace } from "@/lib/workspace-store";
-import { useState } from "react";
+import { useId, useState } from "react";
 import AppHeader from "./app-header";
 import EditorPane from "./editor-pane";
 import PreviewPane from "./preview-pane";
+import Sidebar from "./sidebar";
 
 export default function MarkdownApp() {
   const workspace = useWorkspace();
+  const sidebarId = useId();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPreviewOnly, setIsPreviewOnly] = useState(false);
-  const { name, content } = activeDocument(workspace);
+  const { id, name, content } = activeDocument(workspace);
 
   return (
     <div className="h-dvh overflow-clip">
       <div
         data-sidebar-open={isSidebarOpen || undefined}
-        className="flex h-full flex-col data-sidebar-open:translate-x-62.5 motion-safe:transition-transform motion-safe:duration-300"
+        className="relative flex h-full flex-col data-sidebar-open:translate-x-62.5 motion-safe:transition-transform motion-safe:duration-300"
       >
         <AppHeader
           documentName={name}
+          sidebarId={sidebarId}
           isSidebarOpen={isSidebarOpen}
           onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
           onDelete={deleteDocument}
+          sidebar={
+            <Sidebar
+              id={sidebarId}
+              isOpen={isSidebarOpen}
+              documents={workspace.documents}
+              activeId={id}
+            />
+          }
         />
         <main
           data-preview-only={isPreviewOnly || undefined}

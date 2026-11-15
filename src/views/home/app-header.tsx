@@ -11,16 +11,20 @@ import DocumentNameField from "./document-name-field";
 
 type AppHeaderProps = {
   documentName: string;
+  sidebarId: string;
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
   onDelete: () => void;
+  sidebar: React.ReactNode;
 };
 
 export default function AppHeader({
   documentName,
+  sidebarId,
   isSidebarOpen,
   onToggleSidebar,
   onDelete,
+  sidebar,
 }: AppHeaderProps) {
   const [saveCount, setSaveCount] = useState(0);
 
@@ -35,6 +39,7 @@ export default function AppHeader({
         type="button"
         aria-label="Menu"
         aria-expanded={isSidebarOpen}
+        aria-controls={sidebarId}
         onClick={onToggleSidebar}
         className="grid size-14 shrink-0 place-items-center bg-menu text-white hover:bg-accent focus-visible:-outline-offset-2 focus-visible:outline-white motion-safe:transition-[background-color] md:size-18"
       >
@@ -44,7 +49,8 @@ export default function AppHeader({
           <MenuIcon className="h-3.5 w-5.75 md:h-4.5 md:w-7.5" />
         )}
       </button>
-      <Logo className="ml-6 hidden shrink-0 lg:block" />
+      {sidebar}
+      <Logo className="ml-6 hidden shrink-0 text-white lg:block" />
       <div className="ml-7.5 hidden h-10 w-px shrink-0 bg-divider lg:block" />
       <DocumentNameField name={documentName} />
       <button
